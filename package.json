@@ -1,0 +1,50 @@
+{
+  "name": "cytoscape-tidytree",
+  "version": "0.1.0",
+  "description": "Cytoscape.js layout extension for positioning trees",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    
+    "build:esbuild:min": "esbuild src/index.ts --bundle --minify --sourcemap --outfile=dist/cytoscape-tidytree.min.js",
+    "build:esbuild": "esbuild src/index.ts --bundle --sourcemap --outfile=dist/cytoscape-tidytree.js",
+    "watch:esbuild": "npm run build:esbuild -- --watch",
+    "build:tsc": "tsc",
+    "watch:tsc": "npm run build:tsc -- --watch --preserveWatchOutput",
+
+    "build:all": "npm run build:esbuild:min && npm run build:esbuild && npm run build:tsc",
+    "build": "npm run build:esbuild && npm run build:tsc",
+    "watch": "concurrently 'npm:watch:esbuild' 'npm:watch:tsc'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chuckzel/cytoscape-tidytree"
+  },
+  "keywords": [
+    "cytoscape.js",
+    "layout",
+    "extension",
+    "tidy",
+    "tree",
+    "non-layered",
+    "Reingold-Tilford",
+    "typescript"
+  ],
+  "author": "Jan Zatloukal",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/chuckzel/cytoscape-tidytree/issues"
+  },
+  "homepage": "https://github.com/chuckzel/cytoscape-tidytree#readme",
+  "devDependencies": {
+    "@types/cytoscape": "^3.19.16",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "concurrently": "^8.2.2",
+    "esbuild": "0.19.9",
+    "eslint": "^8.55.0",
+    "typescript": "^5.3.3"
+  }
+}
