@@ -1,3 +1,11 @@
+# build files
+dist
+lib
+
+# macos
+.DS_Store
+
+# template ignores
 # Logs
 logs
 *.log

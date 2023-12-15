@@ -2,25 +2,25 @@
   "name": "cytoscape-tidytree",
   "version": "0.1.0",
   "description": "Cytoscape.js layout extension for positioning trees",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    
+    "prepare": "npm run build:all",
     "build:esbuild:min": "esbuild src/index.ts --bundle --minify --sourcemap --outfile=dist/cytoscape-tidytree.min.js",
     "build:esbuild": "esbuild src/index.ts --bundle --sourcemap --outfile=dist/cytoscape-tidytree.js",
     "watch:esbuild": "npm run build:esbuild -- --watch",
     "build:tsc": "tsc",
     "watch:tsc": "npm run build:tsc -- --watch --preserveWatchOutput",
-
     "build:all": "npm run build:esbuild:min && npm run build:esbuild && npm run build:tsc",
     "build": "npm run build:esbuild && npm run build:tsc",
-    "watch": "concurrently 'npm:watch:esbuild' 'npm:watch:tsc'"
+    "watch": "concurrently 'npm:watch:esbuild' 'npm:watch:tsc'",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chuckzel/cytoscape-tidytree"
+    "url": "git+https://github.com/chuckzel/cytoscape-tidytree.git"
   },
   "keywords": [
     "cytoscape.js",
@@ -46,5 +46,9 @@
     "esbuild": "0.19.9",
     "eslint": "^8.55.0",
     "typescript": "^5.3.3"
-  }
+  },
+  "files": [
+    "dist",
+    "lib"
+  ]
 }
