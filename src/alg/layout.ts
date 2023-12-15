@@ -1,4 +1,4 @@
-import { Tree } from "./tree.js"
+import { Tree } from "./tree.js";
 
 export interface TreeData {
     w: number
@@ -20,7 +20,7 @@ export interface LayoutOptions {
 }
 
 export class Layout {
-    options: LayoutOptions
+    options: LayoutOptions;
 
     constructor(options: Partial<LayoutOptions>) {
         this.options = {
@@ -61,7 +61,7 @@ export class Layout {
             data.children.map((child) => this.makeTree(child, data.y! + outerHeight)));
 
         if (extraSpacing < 0) {
-            console.warn("Node has negative extra space, ignoring", data)
+            console.warn("Node has negative extra space, ignoring", data);
         }
         if (extraSpacing > 0) {
             return new Tree(this.options.lineWidth, extraSpacing, root_y, [vertex], true);
