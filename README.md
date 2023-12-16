@@ -6,7 +6,7 @@ Both bundled and unbundled files are available:
 - `./dist` for files bundled by esbuild
 - `./lib` for unbundled files compiled by tsc as ES module
 ### npm
-```
+```sh
 npm install cytoscape-tidytree
 ```
 ### Direct download
@@ -125,6 +125,21 @@ class DefaultOptions implements TidytreeLayoutOptions {
     nodeDimensionsIncludeLabels: boolean = true;  // if overflowing labels shoud count in the width or height of the node
 }
 ```
+## Build from source
+```sh
+git clone git@github.com:chuckzel/cytoscape-tidytree.git
+cd ./cytoscape-tidytree
+npm install
+```
+`npm run prepare` will run automatically and build all files.
+
+Later, you can use
+```sh
+npm run build  # builds for development (no minified version)
+npm run build:all  # builds everything
+npm run watch  # runs "build" task in watch mode
+```
+For more see `scripts` in `package.json`
 
 ## See also
 - [Paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=d45f66231e053590c64c9d901fb7b028dbc5c923) with the details of the algorithm and the [original implementation](https://github.com/cwi-swat/non-layered-tidy-trees)
