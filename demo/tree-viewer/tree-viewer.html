@@ -1,0 +1,283 @@
+<head>
+    <title>cytoscape-tidytree demo - tree viewer</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.0/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-tidytree@0.1.0/dist/cytoscape-tidytree.js"></script>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script>
+        let id = 0;
+
+        const options = {
+            name: "tidytree",
+            animationEasing: "ease-in-out",
+
+            // defines order of the children
+            // orders them first by scratch.order, then by id
+            // for order, undefined is treated as infinity
+            edgeComparator: (edge1, edge2) => {
+                const child1 = edge1.target();
+                const child2 = edge2.target();
+                const order1 = scratch(child1).order
+                const order2 = scratch(child2).order
+                if (order1 === undefined && order2 === undefined) {
+                    return child1.id() - child2.id();
+                }
+                if (order1 === undefined) {
+                    return 1;
+                }
+                if (order2 === undefined) {
+                    return -1;
+                }
+                return order1 - order2;
+            }
+        }
+
+        function applyLayout() {
+
+            const userOptions = {
+                ...options,
+                horizontalSpacing: parseInt(document.getElementById("slider-horizontal-spacing").value),
+                verticalSpacing: parseInt(document.getElementById("slider-vertical-spacing").value),
+                fit: document.getElementById("checkbox-fit").checked,
+                animate: document.getElementById("checkbox-animate").checked,
+
+                // nodes taller than `160 - verticalSpacing` take two layers, expected behavior
+                layerHeight: document.getElementById("checkbox-layered").checked ? 160 : undefined,
+
+                // should probably add the possibility of passing a function in the future
+                extraVerticalSpacings: Object.fromEntries(
+                    cy.nodes().map(node => [node.id(), scratch(node).extraVerticalSpacing])
+                ),
+            };
+
+            _tidy = cy.layout(userOptions).run();
+            console.log(_tidy);
+        }
+
+        function _handleDragStart(e) {
+            const dragged = e.target;
+            const draggedPos = dragged.position();
+
+            // Save the position at the start of the drag to use in _handleDragEnd
+            scratch(dragged).dragOrigPos = { ...draggedPos };
+
+            // Update the position of children when the node is moved
+            // get descendants and their current positions relative to parent
+            const children = dragged.successors("node");
+            const relPositions = new Map();
+            let limit = 300; // the limit of descendants to move to avoid lag
+            children.forEach((child) => {
+                const childPos = child.position();
+                relPositions.set(child, {
+                    x: childPos.x - draggedPos.x,
+                    y: childPos.y - draggedPos.y
+                });
+                limit--;
+                if (limit < 0) {
+                    return false; // stop iterating (https://js.cytoscape.org/#eles.forEach)
+                }
+            });
+
+            // apply the saved relative positions
+            const handler = (e) => {
+                const targetPos = e.target.position();
+                for (const [child, relPos] of relPositions) {
+                    child.position({
+                        x: targetPos.x + relPos.x,
+                        y: targetPos.y + relPos.y
+                    });
+                }
+            };
+            scratch(dragged).moveChildrenHandler = handler; // save handler to remove later
+            dragged.on('position', handler);
+        }
+
+        function _handleDragEnd(e) {
+            const dragged = e.target;
+            const origPos = scratch(e.target).dragOrigPos;
+            const draggedPos = dragged.position();
+
+            dragged.removeListener('position', scratch(dragged).moveChildrenHandler);
+            scratch(dragged).moveChildrenHandler = undefined;
+
+
+            const parent = dragged.incomers("node");
+
+            const a = "lil";
+
+            // Recalculate order based on the current x's
+            const siblings = parent.outgoers("node").sort((a, b) => a.position().x - b.position().x);
+            siblings.forEach((sibling, i) => {
+                scratch(sibling).order = i;
+            });
+
+            // Set node's extra spacing based on the drag final position
+            const newSpacing = draggedPos.y - (parent.position().y + parent.outerHeight() + parseInt(document.getElementById("slider-vertical-spacing").value));
+            scratch(dragged).extraVerticalSpacing = newSpacing > 0 ? newSpacing : undefined;
+            applyLayout();
+        }
+
+        function clearPerNodeSettings() {
+            cy.nodes().forEach(node => {
+                scratch(node).order = undefined;
+                scratch(node).extraVerticalSpacing = undefined;
+            });
+            applyLayout();
+        }
+
+        function addNodes(root, count) {
+            for (let i = 0; i < count; i++) {
+                const subtree = root.union(root.successors("node"));
+                const randomDescendant = subtree[Math.floor(Math.random() * subtree.length)];
+
+                const nodeVals = randomNodeVals(randomDescendant.position());
+                const node = cy.add(nodeVals);
+                //const node = cy.getElementById(nodeVals.data.id);
+                cy.add({
+                    group: "edges",
+                    data: {
+                        id: `${randomDescendant.id()}-${node.id()}`,
+                        source: randomDescendant.id(),
+                        target: node.id(),
+                    },
+                });
+            }
+            applyLayout();
+        }
+
+        // creates more wide or tall nodes, not just squarish ones
+        function randomNodeVals(pos = { x: 0, y: 0 }, maxSizeSum = 200, minSize = 40) {
+            const sizeSum = Math.random() * (maxSizeSum - 2 * minSize) + 2 * minSize;
+            const width = Math.random() * (sizeSum - 2 * minSize) + 1 * minSize;
+            const height = sizeSum - width;
+            return {
+                group: "nodes",
+                data: {
+                    id: id++,
+                    width: width,
+                    height: height,
+                },
+                position: { ...pos },
+            };
+        }
+
+        // get the scratch object for temp data
+        function scratch(node) {
+            if (node.scratch("_tidytree-treeviewer") === undefined) {
+                node.scratch("_tidytree-treeviewer", {});
+            }
+            return node.scratch("_tidytree-treeviewer");
+        }
+
+        addEventListener("DOMContentLoaded", function () {
+
+            document.getElementById("slider-horizontal-spacing").addEventListener("change", applyLayout);
+            document.getElementById("slider-vertical-spacing").addEventListener("change", applyLayout);
+            document.getElementById("checkbox-layered").addEventListener("change", applyLayout);
+            document.getElementById("checkbox-fit").addEventListener("change", applyLayout);
+            document.getElementById("button-reset").addEventListener("click", clearPerNodeSettings);
+            document.getElementById("button-add").addEventListener("click", () => {
+                let selected = cy.$("node:selected");
+                if (selected.length === 0) {
+                    selected = root;
+                }
+                addNodes(selected, 5);
+            });
+
+            var cy = window.cy = cytoscape({
+                container: document.getElementById("cy"),
+
+                style: [
+                    {
+                        "selector": "node",
+                        "style": {
+                            "label": "data(id)",
+                            "text-valign": "center",
+                            "width": "data(width)",
+                            "height": "data(height)",
+                            "shape": "round-rectangle",
+                            "background-color": "#dddddd",
+                            "font-family": "FiraMono",
+                            "font-size": "12pt",
+                            "border-width": "1px",
+                            "border-color": "#bbbbbb",
+                            "border-style": "solid",
+                            "text-max-width": 150,
+                            "text-wrap": "wrap",
+                        }
+                    },
+                    {
+                        "selector": "node:selected",
+                        "style": {
+                            "border-width": "3px",
+                            "border-color": "#000000",
+                            "border-style": "solid",
+                        }
+                    },
+                    {
+                        "selector": "edge",
+                        "style": {
+                            "curve-style": "taxi",
+                            "taxi-direction": "downward",
+                            "taxi-turn": "20px",
+                            "target-arrow-shape": "triangle",
+                        }
+                    },
+                ],
+                elements: [randomNodeVals()]
+            });
+            cytoscape.warnings(false)
+            
+            cy.on("grabon", _handleDragStart);
+            cy.on("dragfreeon", _handleDragEnd);
+
+            const root = cy.getElementById(0);
+            root.ungrabify();
+            addNodes(root, 30);
+        });
+    </script>
+</head>
+
+<body>
+    <div id="cy"></div>
+
+    <div id="help">
+        <h2>cytoscape-tidytree tree viewer demo</h2>
+        Try dragging a node around:
+        <ul>
+            <li>up/down to change the space between it and its parent</li>
+            <li>horizontally to change its order in the list of siblings</li>
+        </ul>
+    </div>
+
+    <div id="layout-settings">
+        <label>
+            Horizontal spacing
+            <input id="slider-horizontal-spacing" type="range" min="0" max="200" value="20">
+        </label>
+        <label>
+            Vertical spacing
+            <input id="slider-vertical-spacing" type="range" min="0" max="200" value="40">
+        </label>
+
+        <label>
+            Animate
+            <input id="checkbox-animate" type="checkbox" checked>
+        </label>
+        <label>
+            Layered
+            <input id="checkbox-layered" type="checkbox">
+        </label>
+        <label>
+            Fit on change
+            <input id="checkbox-fit" type="checkbox" checked>
+        </label>
+        <span>
+            <button id="button-reset">Reset per-node settings</button>
+            <button id="button-add">Add nodes to the selected node's subtree</button>
+        </span>
+    </div>
+</body>

@@ -1,0 +1,42 @@
+body {
+    font-family: "FiraMono";
+    font-size: 14px;
+}
+
+#cy {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#layout-settings {
+    position: fixed;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    bottom: 20px;
+    right: 40px;
+    text-align: right;
+    width: 150px;
+}
+
+#layout-settings > * {
+    margin: 5px;
+    width: 100%;
+}
+
+#help {
+    position: fixed;
+    top: 10px;
+    left: 20px;
+    opacity: 0.5;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+body {
+    font-family: "FiraMono";
+    font-size: 16px;
+}
