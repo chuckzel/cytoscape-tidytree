@@ -1,23 +1,36 @@
 # cytoscape-tidytree
 A [Cytoscape.js](https://js.cytoscape.org/) layout extension for tree layouts which allows for variable sizes of nodes while using a non-layered tree layout and moving nodes further down than its siblings. Uses van der Ploeg's extension of the Reingold-Tilford algorithm from the paper [Drawing Non-layered Tidy Trees in Linear Time](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=d45f66231e053590c64c9d901fb7b028dbc5c923).
 
+## Demo
+All demos are available on [GitHub Pages](https://chuckzel.github.io/cytoscape-tidytree/)
+
 ## Download
 Both bundled and unbundled files are available:
 - `./dist` for files bundled by esbuild
+    - `./dist/cytoscape-tidytree.js`
+    - `./dist/cytoscape-tidytree.min.js`
 - `./lib` for unbundled files compiled by tsc as ES module
+    - Entrypoint `./lib/index.js`
+
 ### npm
 ```sh
 npm install cytoscape-tidytree
 ```
+### CDN
+Preferably use [jsdelivr](https://www.jsdelivr.com/package/npm/cytoscape-tidytree).
+```html
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-tidytree/dist/cytoscape-tidytree.js"></script>
+```
+You can also use any other CDN which can serve npm packages automatically.
 ### Direct download
-[Releases](https://github.com/chuckzel/cytoscape-tidytree/releases)
+Available in [Releases](https://github.com/chuckzel/cytoscape-tidytree/releases)
 
 ## Import 
 
 ### Browser
 ```html
 <script src="./cytoscape.min.js"></script>
-<script type="module" src="./cytoscape-tidytree.js"></script>
+<script src="./cytoscape-tidytree.js"></script>
 ```
 The extension is automatically registered into Cytoscape.js
 
@@ -119,10 +132,10 @@ class DefaultOptions implements TidytreeLayoutOptions {
     stop: ((e: LayoutEventObject) => void) | undefined = undefined;   // callback for the layout`s finish
 
     /**
-     * Layout options passed to nodes.node.layoutDimensions()
+     * Layout options passed to node.layoutDimensions()
      * https://js.cytoscape.org/#node.layoutDimensions
      */
-    nodeDimensionsIncludeLabels: boolean = true;  // if overflowing labels shoud count in the width or height of the node
+    nodeDimensionsIncludeLabels: boolean = true;  // if overflowing labels should count in the width or height of the node
 }
 ```
 ## Build from source
@@ -131,18 +144,18 @@ git clone git@github.com:chuckzel/cytoscape-tidytree.git
 cd ./cytoscape-tidytree
 npm install
 ```
-`npm run prepare` will run automatically and build all files.
+`npm run prepare` will run automatically and build all `.js` and `.d.ts` files.
 
-Later, you can use
+After that, you can use one of:
 ```sh
 npm run build  # builds for development (no minified version)
 npm run build:all  # builds everything
 npm run watch  # runs "build" task in watch mode
 ```
-For more see `scripts` in `package.json`
+For more see `scripts` in `package.json`.
 
 ## See also
 - [Paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=d45f66231e053590c64c9d901fb7b028dbc5c923) with the details of the algorithm and the [original implementation](https://github.com/cwi-swat/non-layered-tidy-trees)
 >PLOEG, Atze van der. Drawing non-layered tidy trees in linear time. Software: Practice and Experience. 2014, vol. 44, no. 12, pp. 1467–1484. Available from doi: 10.1002/spe.2213.
-- [d3-flextree](https://github.com/Klortho/d3-flextree) A D3.js plugin using the same algorithm
-- [AEON Client]([d3-flextree](https://github.com/Klortho/d3-flextree)) An example of advanced usage and the project for which this library was developed
+- [d3-flextree](https://github.com/Klortho/d3-flextree) - A D3.js plugin using the same algorithm
+- [AEON Client]([d3-flextree](https://github.com/Klortho/d3-flextree)) - An example of advanced usage and the project for which this library was developed
