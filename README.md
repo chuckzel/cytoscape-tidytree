@@ -158,4 +158,4 @@ For more see `scripts` in `package.json`.
 - [Paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=d45f66231e053590c64c9d901fb7b028dbc5c923) with the details of the algorithm and the [original implementation](https://github.com/cwi-swat/non-layered-tidy-trees)
 >PLOEG, Atze van der. Drawing non-layered tidy trees in linear time. Software: Practice and Experience. 2014, vol. 44, no. 12, pp. 1467–1484. Available from doi: 10.1002/spe.2213.
 - [d3-flextree](https://github.com/Klortho/d3-flextree) - A D3.js plugin using the same algorithm
-- [AEON Client]([d3-flextree](https://github.com/Klortho/d3-flextree)) - An example of advanced usage and the project for which this library was developed
+- [AEON Client](https://github.com/chuckzel/biodivine-aeon-client/tree/new-tree-layout) - An example of advanced usage and the project for which this library was developed
