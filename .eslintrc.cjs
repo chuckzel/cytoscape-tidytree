@@ -17,7 +17,7 @@ module.exports = {
     overrides: [
         {
             extends: ['plugin:@typescript-eslint/disable-type-checked'],
-            files: ['.eslintrc.cjs'],
+            files: ['.eslintrc.cjs', "*.js"],
         },
     ],
     "rules": {
