@@ -238,6 +238,42 @@ const tests = [
             }).update();
         }
     },
+    {
+        desc: "option_direction_lr",
+        data: [198, 69, [251, 74], [95, 91, [395, 50]], [243, 75], [332, 77, [367, 93]], [193, 86], [278, 83, [155, 95]]],
+        opts: {
+            direction: "LR",
+        },
+        other: (cy) => {
+            cy.style().selector("edge").style({
+                "taxi-direction": "rightward"
+            }).update();
+        }
+    },
+    {
+        desc: "option_direction_bt",
+        data: [198, 69, [251, 74], [95, 91, [395, 50]], [243, 75], [332, 77, [367, 93]], [193, 86], [278, 83, [155, 95]]],
+        opts: {
+            direction: "BT",
+        },
+        other: (cy) => {
+            cy.style().selector("edge").style({
+                "taxi-direction": "upward"
+            }).update();
+        }
+    },
+    {
+        desc: "option_direction_rl",
+        data: [198, 69, [251, 74], [95, 91, [395, 50]], [243, 75], [332, 77, [367, 93]], [193, 86], [278, 83, [155, 95]]],
+        opts: {
+            direction: "RL",
+        },
+        other: (cy) => {
+            cy.style().selector("edge").style({
+                "taxi-direction": "leftward"
+            }).update();
+        }
+    },
     // TAKEN FROM
     // https://github.com/Klortho/d3-flextree/blob/af196220927218bbe7ac6cad8e059f56430befb6/src/test/test-trees.js
     {

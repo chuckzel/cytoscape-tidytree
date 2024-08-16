@@ -11,6 +11,7 @@ interface CyLayoutOptions extends LayoutOptions, BaseLayoutOptions, AnimatedLayo
 
     dataOnly: boolean | undefined
 
+    direction: "LR" | "RL" | "TB" | "BT"
     customYs: Record<string, number> //| ((id: string) => (number | undefined))
     extraVerticalSpacings: Record<string, number>
     edgeComparator: ((edgeA: EdgeSingular, edgeB: EdgeSingular) => number) | undefined
@@ -40,6 +41,7 @@ class DefaultOptions implements TidytreeLayoutOptions {
     dataOnly: boolean = false;       // when enabled, nodes' positions aren't set
     horizontalSpacing: number = 20;  // the width of the space between nodes in cytoscape units
     verticalSpacing: number = 40;    // the height of the space between parent and child in cytoscape units
+    direction: "LR" | "RL" | "TB" | "BT" = "TB";  // the direction of the tree, left to right, right to left, top to bottom, bottom to top
 
     // a map from node's id to how much space should be added between it and its parent
     extraVerticalSpacings: Record<string, number> = {};
@@ -131,6 +133,9 @@ CyLayout.prototype.createTreeData = function (this: CyLayout): TreeData {
             ...node.layoutDimensions({ nodeDimensionsIncludeLabels: includeLabels }),
             ...this.options.sizeGetter(node)
         };
+        if (this.options.direction === "LR" || this.options.direction === "RL") {
+            [dims.w, dims.h] = [dims.h, dims.w];
+        }
         const data: TreeDataWithId = {
             id: node.id(),
             w: dims.w,
@@ -173,7 +178,13 @@ CyLayout.prototype.run = function (this: CyLayout) {
         // - LayoutPositionOptions' "ready" and "stop" properties should be callback functions, not undefined
         nodes.layoutPositions(this as unknown as string, this.options as unknown as LayoutPositionOptions, (node) => {
             const data = node.scratch("tidytree") as TreeData;
-            return { x: data.x! + data.w / 2, y: data.y! + data.h / 2 };
+            const pos = { x: data.x! + data.w / 2, y: data.y! + data.h / 2 };
+            if (this.options.direction === "LR" || this.options.direction === "RL") {
+                [pos.x, pos.y] = [pos.y, pos.x];
+            }
+            if (this.options.direction === "BT") { pos.y = -pos.y; }
+            if (this.options.direction === "RL") { pos.x = -pos.x; }
+            return pos;
         });
     }
     return { treeData: treeData, tree: tree };
