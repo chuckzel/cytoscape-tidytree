@@ -81,6 +81,7 @@ class DefaultOptions implements TidytreeLayoutOptions {
     dataOnly: boolean = false;       // when enabled, nodes' positions aren't set, only data is calculated
     horizontalSpacing: number = 20;  // the width of the space between nodes in cytoscape units
     verticalSpacing: number = 40;    // the height of the space between parent and child in cytoscape units
+    direction: "LR" | "RL" | "TB" | "BT" = "TB";  // the direction of the tree, left to right, right to left, top to bottom, bottom to top
 
     // an object from node's id to how much space should be added between it and its parent
     extraVerticalSpacings: Record<string, number> = {};
