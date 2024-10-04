@@ -274,6 +274,20 @@ const tests = [
             }).update();
         }
     },
+    {
+        desc: "nontree",
+        data: [10, 40, [20, 40], [30, 40]],
+        otherBefore: (cy) => {
+            cy.add({ group: "edges", data: { source: "2", target: "1" } });
+        }
+    },
+    {
+        desc: "nontree-noroot",
+        data: [10, 40, [20, 40], [30, 40]],
+        otherBefore: (cy) => {
+            cy.add({ group: "edges", data: { source: "2", target: "0" } });
+        }
+    },
     // TAKEN FROM
     // https://github.com/Klortho/d3-flextree/blob/af196220927218bbe7ac6cad8e059f56430befb6/src/test/test-trees.js
     {

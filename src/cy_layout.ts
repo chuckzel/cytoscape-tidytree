@@ -153,8 +153,27 @@ CyLayout.prototype.createTreeData = function (this: CyLayout): TreeData {
     for (const edge of edges) {
         const sourceData = edge.source().scratch("tidytree") as TreeData;
         const targetData = edge.target().scratch("tidytree") as TreeData;
-        sourceData.children.push(targetData);
-        roots.delete(targetData);
+        // ignore the edge if target already has a parent
+        if (roots.has(targetData)) {
+            sourceData.children.push(targetData);
+            roots.delete(targetData);
+        }
+    }
+
+    // if there are no roots, choose the first node as the root
+    if (roots.size === 0) {
+        const fakeRoot = eles.nodes().first();
+        const rootData = fakeRoot.scratch("tidytree") as TreeData;
+        roots.add(rootData);
+        
+        // remove root from its parent's children list
+        for (const parent of fakeRoot.incomers("node")) {
+            const sourceData = parent.scratch("tidytree") as TreeData;
+            const i = sourceData.children.indexOf(rootData);
+            if (i !== -1) {
+                sourceData.children.splice(i, 1);
+            }
+        }
     }
 
     const newRoot: TreeData = {
