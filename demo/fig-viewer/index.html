@@ -119,7 +119,7 @@
                 }
                 return id;
             };
-            const data = Array.isArray(test.data[0]) ? test.data : [test.data];
+            const data = Array.isArray(test.data[0] ?? []) ? test.data : [test.data];
             data.forEach((t) => createNode(t));
             return elems;
         }

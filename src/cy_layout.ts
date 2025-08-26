@@ -161,7 +161,7 @@ CyLayout.prototype.createTreeData = function (this: CyLayout): TreeData {
     }
 
     // if there are no roots, choose the first node as the root
-    if (roots.size === 0) {
+    if (roots.size === 0 && !eles.nodes().empty()) {
         const fakeRoot = eles.nodes().first();
         const rootData = fakeRoot.scratch("tidytree") as TreeData;
         roots.add(rootData);

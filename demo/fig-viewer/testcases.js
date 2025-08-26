@@ -288,6 +288,10 @@ const tests = [
             cy.add({ group: "edges", data: { source: "2", target: "0" } });
         }
     },
+    {
+        desc: "empty",
+        data: [],
+    },
     // TAKEN FROM
     // https://github.com/Klortho/d3-flextree/blob/af196220927218bbe7ac6cad8e059f56430befb6/src/test/test-trees.js
     {
