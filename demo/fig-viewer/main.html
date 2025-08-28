@@ -1,0 +1,246 @@
+<head>
+    <title>cytoscape-tidytree demo - figs</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.0/dist/cytoscape.min.js"></script>
+    <script src="../dist/cytoscape-tidytree.min.js"></script>
+
+    <script src="./testcases.js"></script>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script>
+        settings = {
+            get bBoxActive() {
+                return document.getElementById("checkbox-bb").checked;
+            },
+            get onTop() {
+                return document.getElementById("checkbox-ontop").checked;
+            },
+            get selectedCase() {
+                return parseInt(document.getElementById("select-case").value);
+            },
+        }
+
+        function changeCase() {
+            const caseI = settings.selectedCase;
+            const elems = { nodes: [], edges: [] };
+            const curr = cases[caseI]
+            if (caseI === -1) {
+                cases.forEach((c, i) => createCaseNodes(`${c.desc[0]}${i}-`, c, elems));
+            } else {
+                createCaseNodes("", curr, elems);
+            }
+            cy.style(style)
+
+            cy.elements().remove();
+            cy.add(elems);
+
+            const opts = {
+                name: "tidytree",
+                animate: false,
+                spacingX: 10,
+                spacingY: 20,
+                ...(curr?.opts ?? {}),
+            }
+            console.log(curr)
+            _tidy = cy.layout(opts).run();
+            showBb(cy, _tidy.tree, curr?.showRoot ?? false);
+
+            if (curr?.other) {
+                curr.other(cy)
+            }
+        }
+
+        function showBb(cy, tree, showRoot = false) {
+            let i = -1;
+            function showBbNode(cy, tree, show = true) {
+                const id = "bb" + i++;
+                if (show) {
+                    cy.add({
+                        group: "nodes",
+                        position: { x: tree.x + tree.w / 2, y: tree.y + tree.h / 2 },
+                        data: { id: id, width: tree.w, height: tree.h },
+                        classes: ["bb"]
+                    })
+                }
+                for (let child of tree.c) {
+                    showBbNode(cy, child);
+                }
+                return id
+            }
+            showBbNode(cy, tree, showRoot)
+        }
+
+        window.addEventListener("DOMContentLoaded", function () {
+            cases.forEach((c, i) => {
+                let opt = document.createElement("option");
+                opt.value = i;
+                opt.innerText = c.desc;
+                document.getElementById("select-case").appendChild(opt);
+            })
+            document.getElementById("select-case").addEventListener("change", changeCase);
+            document.getElementById("checkbox-bb").addEventListener("change", () => cy.style().update());
+            document.getElementById("checkbox-ontop").addEventListener("change", () => cy.style().update());
+
+            var cy = window.cy = cytoscape({
+                container: document.getElementById("cy"),
+                style: style
+            });
+
+            document.getElementById("select-case").value = 0;
+            changeCase();
+        });
+
+        function createCaseNodes(prefix, test, elems = { nodes: [], edges: [] }, dw = -3, dh = -3) {
+            let i = 0;
+            let createNode = (n) => {
+                let id = prefix + i;
+                i++;
+                let w = n[0];
+                let h = n[1];
+                elems.nodes.push({
+                    data: {
+                        "id": id,
+                        "width": w + dw,
+                        "height": h + dh
+                    },
+                    classes: ["tree"],
+                });
+                for (let chi = 2; chi < n.length; chi++) {
+                    let chid = createNode(n[chi]);
+                    elems.edges.push({
+                        data: {
+                            "source": id,
+                            "target": chid
+                        },
+                        classes: ["tree"],
+                    });
+                }
+                return id;
+            };
+            const data = Array.isArray(test.data[0] ?? []) ? test.data : [test.data];
+            data.forEach((t) => createNode(t));
+            return elems;
+        }
+        const style = [
+            {
+                "selector": "node",
+                "style": {
+                    "label": "data(id)",
+                    "text-valign": "center",
+                    "width": "data(width)",
+                    "height": "data(height)",
+                    "shape": "round-rectangle",
+                    "background-color": "#dddddd",
+                    "font-family": "FiraMono",
+                    "font-size": "12pt",
+                    "border-width": "1px",
+                    "border-color": "#bbbbbb",
+                    "border-style": "solid",
+                    "text-max-width": 150,
+                    "text-wrap": "wrap",
+                }
+            }, {
+                "selector": "edge",
+                "style": {
+                    "curve-style": "taxi",
+                    "taxi-direction": "downward",
+                    "taxi-turn": "20px",
+                    "target-arrow-shape": "triangle",
+                }
+            }, {
+                "selector": ".curr",
+                "style": {
+                    "background-color": "cyan",
+                    "line-color": "cyan",
+                    "target-arrow-color": "cyan",
+                }
+            }, {
+                "selector": ".prev",
+                "style": {
+                    "background-color": "#FFE0B2",
+                    "line-color": "#FFE0B2",
+                    "target-arrow-color": "#FFE0B2",
+                }
+            }, {
+                "selector": ".lcon",
+                "style": {
+                    "background-color": "blue",
+                    "line-color": "blue",
+                    "target-arrow-color": "blue",
+                }
+            }, {
+                "selector": ".rcon",
+                "style": {
+                    "background-color": "red",
+                    "line-color": "red",
+                    "target-arrow-color": "red",
+                }
+            }, {
+                "selector": ".lcon.rcon",
+                "style": {
+                    "background-color": "purple",
+                    "line-color": "purple",
+                    "target-arrow-color": "purple",
+                }
+            }, {
+                "selector": ".thread",
+                "style": {
+                    "curve-style": "bezier",
+                    "control-point-weight": 1,
+                }
+            }, {
+                "selector": ".extreme",
+                "style": {
+                    "border-width": "10px",
+                    "border-color": "green",
+                    "border-style": "solid",
+                }
+            }, {
+                "selector": ".tree",
+                "style": {
+                    "z-index": "1",
+                    "opacity": () => settings.bBoxActive && settings.onTop ? "0.3" : "1",
+                }
+            }, {
+                "selector": ".bb",
+                "style": {
+                    "display": () => settings.bBoxActive ? "element" : "none",
+                    "label": "",
+                    "width": "data(width)",
+                    "height": "data(height)",
+                    "shape": "rectangle",
+                    "background-opacity": () => settings.onTop ? "0.4" : "0.05",
+                    "background-color": "orange",
+                    "border-width": "1px",
+                    "border-color": "#FF0000",
+                    "border-style": () => settings.onTop ? "solid" : "solid",
+                    "border-opacity": () => settings.onTop ? "1" : "0.3",
+                    "z-index": () => settings.onTop ? "2" : "0",
+                }
+            }
+        ];
+    </script>
+</head>
+
+<body>
+    <div id="cy"></div>
+
+    <div id="#help">
+        <h2>cytoscape-tidytree figs demo</h2>
+    </div>
+    <select id="select-case">
+        <option value="-1">All</option>
+    </select>
+    <div id="layout-settings">
+        <label>
+            Show bounding boxes
+            <input id="checkbox-bb" type="checkbox">
+        </label>
+        <label>
+            on top
+            <input id="checkbox-ontop" type="checkbox" checked>
+        </label>
+    </div>
+</body>
