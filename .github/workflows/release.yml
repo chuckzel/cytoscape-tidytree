@@ -1,4 +1,4 @@
-name: Release build artifacts
+name: Create github release
 
 on:
   push:
