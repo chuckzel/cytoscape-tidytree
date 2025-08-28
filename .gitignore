@@ -1,6 +1,8 @@
 # build files
 dist
 lib
+dist.tar.gz
+lib.tar.gz
 
 # macos
 .DS_Store

@@ -16,6 +16,7 @@
     "build:all": "npm run build:esbuild:min && npm run build:esbuild && npm run build:tsc",
     "build": "npm run build:esbuild && npm run build:tsc",
     "build:demo": "npm run build:all && cp -r dist demo/dist/ && cp -r lib demo/lib/",
+    "build:release": "npm run build:all && tar -czf dist.tar.gz dist && tar -czf lib.tar.gz lib",
     "watch": "concurrently 'npm:watch:esbuild' 'npm:watch:tsc'",
     "lint": "eslint ."
   },
